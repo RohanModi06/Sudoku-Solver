@@ -11,7 +11,7 @@ class Sudoku:
         pygame.init()
         self.window = pygame.display.set_mode((WIDTH, HEIGHT))
         self.playing = True
-        self.grid= testBoard1
+        self.grid= None
         self.selected = None
         self.mouse_pos = None
         self.state = "game"
