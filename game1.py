@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from param import *
 from cell1 import *
+from algo import *
 
 
 class Sudoku:
@@ -20,6 +21,8 @@ class Sudoku:
         self.locked_cells= []
         self.incorrect_cells = []
         self.empty_cells = []
+        self.less_input=False
+        self.invalid_input=False
         self.font = pygame.font.SysFont("arial", cellSize//2)
         self.Puzzle("1")
         self.load()
@@ -69,11 +72,7 @@ class Sudoku:
         
         if self.cell_changed:
             self.incorrect_cells= []
-            self.check_cells()
-            # if self.filled():
-                
-            #     if len(self.incorrect_cells) == 0:
-            #         self.finished = True
+            
         
     
     def game_draw(self):
@@ -89,6 +88,13 @@ class Sudoku:
         self.draw_num(self.window)
         
         self.draw_grid(self.window)
+        
+        if self.invalid_input:
+            # print("Invalid")
+            font = self.font.render("Invalid Puzzle!", False, INCORRECTCELLCOLOUR)
+            
+            self.window.blit(font, [240, 10])
+            
         pygame.display.update()
         self.cell_changed = False
       
@@ -102,7 +108,7 @@ class Sudoku:
         pygame.draw.rect(window, LIGHTBLUE, (gridPos[0]+ pos[0]*cellSize,gridPos[1]+pos[1]*cellSize, cellSize, cellSize))
     
     def draw_grid(self, window):
-        pygame.draw.rect(window, BLACK, (gridPos[0], gridPos[1], WIDTH-150, HEIGHT-150), 3)
+        pygame.draw.rect(window, BLACK, (gridPos[0], gridPos[1], 450, 450), 3)
         for i in range(9):
             breadth=3 if i%3==0 else 1;
             pygame.draw.line(window, BLACK, (gridPos[0] + i*cellSize, gridPos[1]), (gridPos[0] + i*cellSize, gridPos[1]+450), breadth)
@@ -117,30 +123,56 @@ class Sudoku:
         
     
     def load_buttons(self):
-        self.play_buttons.append(Button(  20, 40, WIDTH//7, 40,
-                                            function=self.check_cells,
-                                            color=(27,142,207),
-                                            text="Check"))
-        self.play_buttons.append(Button(  140, 40, WIDTH//7, 40,
-                                            color=(117,172,112),
+        
+        self.play_buttons.append(Button(  40, 40, 100, 40,
+                                            color=(66, 245, 233),
                                             function=self.Puzzle,
                                             par="1",
                                             text="Easy"))
-        self.play_buttons.append(Button(  WIDTH//2-(WIDTH//7)//2, 40, WIDTH//7, 40,
+        self.play_buttons.append(Button(  180, 40, 100, 40,
                                             color=(204,197,110),
                                             function=self.Puzzle,
                                             par="2",
                                             text="Medium"))
-        self.play_buttons.append(Button( 380, 40, WIDTH//7, 40,
+        self.play_buttons.append(Button( 320, 40, 100, 40,
                                             color=(199,129,48),
                                             function=self.Puzzle,
                                             par="3",
                                             text="Hard"))
-        self.play_buttons.append(Button(  500, 40, WIDTH//7, 40,
+        self.play_buttons.append(Button(  460, 40, 100, 40,
                                             color=(207,68,68),
                                             function=self.Puzzle,
                                             par="4",
                                             text="Evil"))
+        self.play_buttons.append(Button(  40, 100, 150, 40,
+                                            function=self.custom,
+                                            color=(224, 245, 66),
+                                            text="Custom"))
+        self.play_buttons.append(Button(  40+150+35, 100, 150, 40,
+                                            function=self.check_cells,
+                                            color=(117,172,112),
+                                            text="Check"))
+        self.play_buttons.append(Button(  40+150+35+150+35, 100, 150, 40,
+                                            function=self.Puzzle_solve,
+                                            color=(27,142,207),
+                                            text="Solve"))
+        
+    def custom(self, call):
+        self.finished = False
+        
+        self.grid = [[0 for i in range(9)] for i in range(9)]
+        self.load()
+        
+    def Puzzle_solve(self, call):
+        self.check_cells()
+        if len(self.incorrect_cells)!=0:
+            self.invalid_input=True
+        elif solve(self.grid):
+            self.finished=True
+        else:
+            self.invalid_input=True
+            
+        
         
     def draw_text(self,window, text, pos, color=BLACK):
         font = self.font.render(text, False, color)
@@ -166,6 +198,7 @@ class Sudoku:
         return True
                     
     def check_cells(self, call=False):
+        self.finished = False
         self.check_rows()
         self.check_columns()
         self.check_box()
@@ -265,6 +298,8 @@ class Sudoku:
         
                     
     def load(self):
+        self.less_input=False
+        self.invalid_input=False
         self.play_buttons= []
         self.load_buttons()
         self.locked_cells = []
