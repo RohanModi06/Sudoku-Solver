@@ -33,7 +33,7 @@ class Button:
         if self.par:
             self.function(self.par)
         else:
-            print(self.function)
+            # print(self.function)
             self.function(call=True)
             
     def draw_text(self, text):
