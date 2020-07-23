@@ -1,5 +1,10 @@
 # Sudoku-Solver
 
+### Python modules required
+1. requests
+2. BeautifulSoup
+3. pygame
+
 ### Setup 
 To run the game type:
 python main.py
